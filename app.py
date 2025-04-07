@@ -29,10 +29,10 @@ def create_pdf(filename, lines, is_arabic, bg_image, selected_date, font_file):
 
     # Title
     if is_arabic:
-        pdf.set_font_size(16)
+        pdf.set_font_size(14)
         pdf.multi_cell(text_width_mm, 10, reshape_arabic(lines[0]), align='R')
     else:
-        pdf.set_font_size(16)
+        pdf.set_font_size(14)
         pdf.multi_cell(text_width_mm, 10, lines[0], align='L')
 
     pdf.set_font_size(11)
@@ -98,6 +98,11 @@ if st.button("Generate & Download Consent ZIP"):
             "",
             "بالتوقيع أدناه، أوافق على استخدام TRAY لمحتواي:",
             "TABLE_BLOCK",
+            ,""
+            ,""
+            ,""
+            ,""
+            ,""
             "للاستفسارات، يرجى التواصل مع قسم التسويق: marketing@tray.sa"
         ]
 
