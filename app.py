@@ -2,22 +2,21 @@ import streamlit as st
 from fpdf import FPDF
 from datetime import datetime
 
-# Get today's date
+# Today's date
 today_date = datetime.today().strftime('%Y-%m-%d')
 
 st.set_page_config(page_title="TRAY Consent Form Generator")
 st.title("📝 TRAY Media Consent Form Generator")
 
-# Input fields
+# Input field
 name = st.text_input("Full Name / الاسم الكامل")
-department = st.text_input("Department/Title / القسم أو المسمى الوظيفي")
 
 def generate_pdf(content, filename):
     pdf = FPDF()
     pdf.add_page()
     pdf.set_auto_page_break(auto=True, margin=15)
 
-    # Use NotoSansArabic-SemiBold font
+    # Add custom font
     pdf.add_font("NotoArabic", '', fname="NotoSansArabic-SemiBold.ttf", uni=True)
     pdf.set_font("NotoArabic", size=12)
 
@@ -27,40 +26,50 @@ def generate_pdf(content, filename):
     return pdf.output(dest='S').encode('latin-1'), filename
 
 if st.button("Generate Consent PDFs"):
-    if name and department:
-        # English consent form content
+    if name:
+        # English content
         english_content = f"""TRAY Media & Marketing Consent Form
 
 In signing this form, I grant Company AL-HALLOUL RAQMIYAH AL-RAEDEH For Information Technology (TRAY) the unrestricted right and permission to record, photograph, and use my name, image, voice, or words in any media content created for marketing, social media, educational, promotional, or internal use.
 
 I understand that these materials may be used on websites, social media platforms, printed publications, and presentations. I acknowledge that I will not receive any compensation or have any rights to review or approve the final materials.
 
-Name: {name}
-Department/Title: {department}
-Signature: _______________________________
-Date: {today_date}
+By signing below, I consent to TRAY’s use of my content:
+
+------------------------------------------------------------
+
+Name:      _____________________________  
+Signature: _____________________________  
+Date:      {today_date}
+
+------------------------------------------------------------
 
 For questions, contact TRAY Marketing: marketing@tray.sa
 """
 
-        # Arabic consent form content
+        # Arabic content
         arabic_content = f"""نموذج موافقة وسائل الإعلام والتسويق – TRAY
 
 بتوقيعي على هذا النموذج، أُقرّ بمنح شركة الحلول الرقمية الرائدة لتقنية المعلومات (TRAY) الحق الكامل وغير المقيد في تصويري أو تسجيل صوتي أو استخدام اسمي أو صورتي أو صوتي أو كلماتي في أي محتوى إعلامي يتم إنتاجه لأغراض تسويقية أو تعليمية أو ترويجية أو داخلية.
 
 أفهم أن هذه المواد قد تُستخدم على المواقع الإلكترونية، منصات التواصل الاجتماعي، المطبوعات، والعروض التقديمية. وأُدرك أنني لن أتلقى أي تعويض مادي أو حق في مراجعة أو الموافقة على المواد النهائية.
 
-الاسم: {name}
-القسم / المسمى الوظيفي: {department}
-التوقيع: _______________________________
-التاريخ: {today_date}
+بالتوقيع أدناه، أوافق على استخدام TRAY لمحتواي:
 
-للاستفسارات، يرجى التواصل مع التسويق: marketing@tray.sa
+------------------------------------------------------------
+
+الاسم:       _____________________________  
+التوقيع:     _____________________________  
+التاريخ:     {today_date}
+
+------------------------------------------------------------
+
+للاستفسارات، يرجى التواصل مع قسم التسويق: marketing@tray.sa
 """
 
         st.success("✅ PDF consent forms generated!")
 
-        # Generate PDFs
+        # Generate PDF files
         en_pdf, en_filename = generate_pdf(english_content, f"TRAY_Consent_EN_{name.replace(' ', '_')}.pdf")
         ar_pdf, ar_filename = generate_pdf(arabic_content, f"TRAY_Consent_AR_{name.replace(' ', '_')}.pdf")
 
@@ -69,4 +78,4 @@ For questions, contact TRAY Marketing: marketing@tray.sa
         st.download_button("📄 Download Arabic PDF", data=ar_pdf, file_name=ar_filename, mime="application/pdf")
 
     else:
-        st.warning("Please fill in both the name and department fields.")
+        st.warning("Please enter a name to proceed.")
