@@ -1,2 +1,5 @@
 streamlit
 fpdf
+pillow
+arabic-reshaper
+python-bidi
