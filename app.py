@@ -1,26 +1,28 @@
 import streamlit as st
 from fpdf import FPDF
-from datetime import datetime
+from datetime import date
 
-# Today's date
-today_date = datetime.today().strftime('%Y-%m-%d')
-
+# Page config
 st.set_page_config(page_title="TRAY Consent Form Generator")
 st.title("📝 TRAY Media Consent Form Generator")
 
-# Input field
+# Inputs
 name = st.text_input("Full Name / الاسم الكامل")
+selected_date = st.date_input("Select the date / اختر التاريخ", value=date.today())
 
-def generate_pdf(content_lines, filename):
+# Convert date to string
+today_date = selected_date.strftime('%Y-%m-%d')
+
+# PDF generation function
+def generate_bilingual_pdf(english_lines, arabic_lines, filename):
     pdf = FPDF()
-    pdf.add_page()
     pdf.set_auto_page_break(auto=True, margin=15)
-
-    # Load your Arabic-supporting font
     pdf.add_font("NotoArabic", '', fname="NotoSansArabic-SemiBold.ttf", uni=True)
     pdf.set_font("NotoArabic", size=12)
 
-    for line in content_lines:
+    # English page
+    pdf.add_page()
+    for line in english_lines:
         if line == "TABLE_BLOCK":
             pdf.ln(8)
             pdf.cell(40, 10, "Name:", ln=0)
@@ -35,11 +37,29 @@ def generate_pdf(content_lines, filename):
         else:
             pdf.multi_cell(0, 10, line)
 
+    # Arabic page
+    pdf.add_page()
+    for line in arabic_lines:
+        if line == "TABLE_BLOCK":
+            pdf.ln(8)
+            pdf.cell(40, 10, "الاسم:", ln=0)
+            pdf.cell(80, 10, "_____________________________", ln=0)
+            pdf.ln(10)
+            pdf.cell(40, 10, "التوقيع:", ln=0)
+            pdf.cell(80, 10, "_____________________________", ln=0)
+            pdf.ln(10)
+            pdf.cell(40, 10, "التاريخ:", ln=0)
+            pdf.cell(80, 10, today_date, ln=1)
+            pdf.ln(5)
+        else:
+            pdf.multi_cell(0, 10, line)
+
     return pdf.output(dest='S').encode('latin-1'), filename
 
-if st.button("Generate Consent PDFs"):
+# Button and logic
+if st.button("Generate Bilingual Consent PDF"):
     if name:
-        # English content as a list of lines
+        # English content
         english_lines = [
             "TRAY Media & Marketing Consent Form",
             "",
@@ -56,7 +76,7 @@ if st.button("Generate Consent PDFs"):
             "For questions, contact TRAY Marketing: marketing@tray.sa"
         ]
 
-        # Arabic content as a list of lines
+        # Arabic content
         arabic_lines = [
             "نموذج موافقة وسائل الإعلام والتسويق – TRAY",
             "",
@@ -72,12 +92,11 @@ if st.button("Generate Consent PDFs"):
             "للاستفسارات، يرجى التواصل مع قسم التسويق: marketing@tray.sa"
         ]
 
-        st.success("✅ PDF consent forms generated!")
+        # Generate bilingual PDF
+        file_name = f"TRAY_Consent_{name.replace(' ', '_')}.pdf"
+        pdf_data, final_filename = generate_bilingual_pdf(english_lines, arabic_lines, file_name)
 
-        en_pdf, en_filename = generate_pdf(english_lines, f"TRAY_Consent_EN_{name.replace(' ', '_')}.pdf")
-        ar_pdf, ar_filename = generate_pdf(arabic_lines, f"TRAY_Consent_AR_{name.replace(' ', '_')}.pdf")
-
-        st.download_button("📄 Download English PDF", data=en_pdf, file_name=en_filename, mime="application/pdf")
-        st.download_button("📄 Download Arabic PDF", data=ar_pdf, file_name=ar_filename, mime="application/pdf")
+        st.success("✅ Bilingual PDF consent form generated!")
+        st.download_button("📄 Download Bilingual PDF", data=pdf_data, file_name=final_filename, mime="application/pdf")
     else:
-        st.warning("Please enter a name to proceed.")
+        st.warning("Please enter the name to generate the consent form.")
