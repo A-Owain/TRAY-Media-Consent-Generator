@@ -29,10 +29,10 @@ def create_pdf(filename, lines, is_arabic, bg_image, selected_date, font_file):
 
     # Title
     if is_arabic:
-        pdf.set_font_size(16)
+        pdf.set_font_size(12)
         pdf.multi_cell(text_width_mm, 10, reshape_arabic(lines[0]), align='R')
     else:
-        pdf.set_font_size(16)
+        pdf.set_font_size(12)
         pdf.multi_cell(text_width_mm, 10, lines[0], align='L')
 
     pdf.set_font_size(14)
@@ -70,7 +70,7 @@ if st.button("Generate & Download Consent ZIP"):
         folder = f"{safe_name} Media Consent"
         os.makedirs(folder, exist_ok=True)
 
-        # Content
+        # English content with name + ID
         english_lines = [
             "TRAY Media & Marketing Consent Form",
             "",
@@ -87,22 +87,20 @@ if st.button("Generate & Download Consent ZIP"):
             "For questions, contact TRAY Marketing: marketing@tray.sa"
         ]
 
+        # Arabic paragraph combined in one full sentence
         arabic_lines = [
             "نموذج موافقة وسائل الإعلام والتسويق – TRAY",
             "",
-            f"أُقرّ أنا، {name}، صاحب الهوية رقم {national_id}، بمنح شركة الحلول الرقمية الرائدة لتقنية المعلومات (TRAY)",
-            "الحق الكامل وغير المقيد في تصويري أو تسجيل صوتي أو استخدام اسمي أو صورتي أو صوتي أو كلماتي",
-            "في أي محتوى إعلامي يتم إنتاجه لأغراض تسويقية أو تعليمية أو ترويجية أو داخلية.",
+            f"أُقرّ أنا، {name}، صاحب الهوية رقم {national_id}، بمنح شركة الحلول الرقمية الرائدة لتقنية المعلومات (TRAY) وغير المقيد في تصويري أو تسجيل صوتي أو استخدام اسمي أو صورتي أو صوتي أو كلماتي الحق الكامل في أي محتوى إعلامي يتم إنتاجه لأغراض تسويقية أو تعليمية أو ترويجية أو داخلية.",
             "",
-            "أفهم أن هذه المواد قد تُستخدم على المواقع الإلكترونية، منصات التواصل الاجتماعي، المطبوعات،",
-            "والعروض التقديمية. وأُدرك أنني لن أتلقى أي تعويض مادي أو حق في مراجعة أو الموافقة على المواد النهائية.",
+            "أن هذه المواد قد تستخدم على المواقع الإلكترونية، منصات التواصل الاجتماعي، المطبوعات، أفهم وأدرك أنني لن أتلقى أي تعويض مادي أو حق في مراجعة أو الموافقة على المواد النهائية. والعروض التقديمية.",
             "",
             "بالتوقيع أدناه، أوافق على استخدام TRAY لمحتواي:",
             "TABLE_BLOCK",
             "للاستفسارات، يرجى التواصل مع قسم التسويق: marketing@tray.sa"
         ]
 
-        # Background + font
+        # Resources
         bg = "consent_background.png"
         font_path = "NotoSansArabic-SemiBold.ttf"
 
@@ -112,7 +110,7 @@ if st.button("Generate & Download Consent ZIP"):
         create_pdf(en_pdf, english_lines, is_arabic=False, bg_image=bg, selected_date=selected_date, font_file=font_path)
         create_pdf(ar_pdf, arabic_lines, is_arabic=True, bg_image=bg, selected_date=selected_date, font_file=font_path)
 
-        # Zip it
+        # ZIP
         zip_file = f"{safe_name} Media Consent.zip"
         with ZipFile(zip_file, 'w') as zipf:
             zipf.write(en_pdf)
