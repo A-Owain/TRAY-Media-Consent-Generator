@@ -43,7 +43,7 @@ def create_pdf(filename, lines, is_arabic, bg_image, selected_date, font_file):
             pdf.ln(6)
             if is_arabic:
                 pdf.multi_cell(text_width_mm, 10, reshape_arabic("الاسم: _____________________________"), align='R')
-                pdf.multi_cell(text_width_mm, 10, reshape_aric("التوقيع: _____________________________"), align='R')
+                pdf.multi_cell(text_width_mm, 10, reshape_arabic("التوقيع: _____________________________"), align='R')
                 pdf.multi_cell(text_width_mm, 10, reshape_arabic(f"التاريخ: {selected_date.strftime('%Y-%m-%d')}"), align='R')
             else:
                 pdf.multi_cell(text_width_mm, 10, "Name: _____________________________", align='L')
