@@ -3,66 +3,77 @@ from fpdf import FPDF
 from datetime import date
 import arabic_reshaper
 from bidi.algorithm import get_display
+import os
+from zipfile import ZipFile
 
-st.set_page_config(page_title="TRAY Consent Form Generator")
-st.title("📝 TRAY Media Consent Form Generator")
-
-# Inputs
-name = st.text_input("Full Name / الاسم الكامل")
-selected_date = st.date_input("Select the date / اختر التاريخ", value=date.today())
-today_date = selected_date.strftime('%Y-%m-%d')
-
-# Arabic shaping
+# Helper: Arabic shaping
 def reshape_arabic(text):
     reshaped = arabic_reshaper.reshape(text)
     return get_display(reshaped)
 
-# Generate PDF
-def generate_bilingual_pdf(english_lines, arabic_lines, filename):
+# PDF builder
+def create_pdf(lines, filename, is_arabic=False, font_size=11):
     pdf = FPDF()
-    pdf.set_auto_page_break(auto=True, margin=15)
+    pdf.add_page()
     pdf.add_font("NotoArabic", '', fname="NotoSansArabic-SemiBold.ttf", uni=True)
-    pdf.set_font("NotoArabic", size=12)
+    pdf.set_font("NotoArabic", size=font_size)
 
-    # English Page
-    pdf.add_page()
-    for line in english_lines:
+    # Title
+    if is_arabic:
+        pdf.set_font_size(16)
+        pdf.multi_cell(0, 10, reshape_arabic(lines[0]), align="R")
+        pdf.ln(4)
+        pdf.set_font_size(font_size)
+    else:
+        pdf.set_font_size(16)
+        pdf.multi_cell(0, 10, lines[0], align="L")
+        pdf.ln(4)
+        pdf.set_font_size(font_size)
+
+    # Body
+    for line in lines[1:]:
         if line == "TABLE_BLOCK":
             pdf.ln(8)
-            pdf.cell(40, 10, "Name:", ln=0)
-            pdf.cell(80, 10, "_____________________________", ln=0)
-            pdf.ln(10)
-            pdf.cell(40, 10, "Signature:", ln=0)
-            pdf.cell(80, 10, "_____________________________", ln=0)
-            pdf.ln(10)
-            pdf.cell(40, 10, "Date:", ln=0)
-            pdf.cell(80, 10, today_date, ln=1)
+            if is_arabic:
+                pdf.cell(40, 10, reshape_arabic("الاسم:"), ln=0, align="R")
+                pdf.cell(80, 10, "_____________________________", ln=0, align="R")
+                pdf.ln(10)
+                pdf.cell(40, 10, reshape_arabic("التوقيع:"), ln=0, align="R")
+                pdf.cell(80, 10, "_____________________________", ln=0, align="R")
+                pdf.ln(10)
+                pdf.cell(40, 10, reshape_arabic("التاريخ:"), ln=0, align="R")
+                pdf.cell(80, 10, selected_date.strftime('%Y-%m-%d'), ln=1, align="R")
+            else:
+                pdf.cell(40, 10, "Name:", ln=0)
+                pdf.cell(80, 10, "_____________________________", ln=0)
+                pdf.ln(10)
+                pdf.cell(40, 10, "Signature:", ln=0)
+                pdf.cell(80, 10, "_____________________________", ln=0)
+                pdf.ln(10)
+                pdf.cell(40, 10, "Date:", ln=0)
+                pdf.cell(80, 10, selected_date.strftime('%Y-%m-%d'), ln=1)
             pdf.ln(5)
         else:
-            pdf.multi_cell(0, 10, line)
+            txt = reshape_arabic(line) if is_arabic else line
+            align = "R" if is_arabic else "L"
+            pdf.multi_cell(0, 10, txt, align=align)
 
-    # Arabic Page
-    pdf.add_page()
-    for line in arabic_lines:
-        if line == "TABLE_BLOCK":
-            pdf.ln(8)
-            pdf.cell(40, 10, reshape_arabic("الاسم:"), ln=0)
-            pdf.cell(80, 10, "_____________________________", ln=0)
-            pdf.ln(10)
-            pdf.cell(40, 10, reshape_arabic("التوقيع:"), ln=0)
-            pdf.cell(80, 10, "_____________________________", ln=0)
-            pdf.ln(10)
-            pdf.cell(40, 10, reshape_arabic("التاريخ:"), ln=0)
-            pdf.cell(80, 10, today_date, ln=1)
-            pdf.ln(5)
-        else:
-            pdf.multi_cell(0, 10, reshape_arabic(line))
+    pdf.output(filename)
 
-    return pdf.output(dest='S').encode('latin-1'), filename
+# Streamlit UI
+st.set_page_config(page_title="TRAY Consent Form Generator")
+st.title("TRAY Media Consent Form Generator")
 
-# On generate
-if st.button("Generate Bilingual Consent PDF"):
+name = st.text_input("Full Name / الاسم الكامل")
+selected_date = st.date_input("Select the date / اختر التاريخ", value=date.today())
+
+if st.button("Generate & Download ZIP"):
     if name:
+        safe_name = name.replace('/', '-').replace('\\', '-')
+        folder = f"{safe_name} Media Consent"
+        os.makedirs(folder, exist_ok=True)
+
+        # English content
         english_lines = [
             "TRAY Media & Marketing Consent Form",
             "",
@@ -79,6 +90,7 @@ if st.button("Generate Bilingual Consent PDF"):
             "For questions, contact TRAY Marketing: marketing@tray.sa"
         ]
 
+        # Arabic content
         arabic_lines = [
             "نموذج موافقة وسائل الإعلام والتسويق – TRAY",
             "",
@@ -94,10 +106,31 @@ if st.button("Generate Bilingual Consent PDF"):
             "للاستفسارات، يرجى التواصل مع قسم التسويق: marketing@tray.sa"
         ]
 
-        file_name = f"TRAY_Consent_{name.replace(' ', '_')}.pdf"
-        pdf_data, final_filename = generate_bilingual_pdf(english_lines, arabic_lines, file_name)
+        # Generate PDFs
+        en_file = f"{folder}/{safe_name} English Media Consent.pdf"
+        ar_file = f"{folder}/{safe_name} Arabic Media Consent.pdf"
+        create_pdf(english_lines, en_file, is_arabic=False)
+        create_pdf(arabic_lines, ar_file, is_arabic=True)
 
-        st.success("✅ Bilingual PDF consent form generated!")
-        st.download_button("📄 Download Bilingual PDF", data=pdf_data, file_name=final_filename, mime="application/pdf")
+        # ZIP all
+        zip_file = f"{folder}.zip"
+        with ZipFile(zip_file, 'w') as zipf:
+            zipf.write(en_file)
+            zipf.write(ar_file)
+
+        # Clean up intermediate files
+        os.remove(en_file)
+        os.remove(ar_file)
+        os.rmdir(folder)
+
+        with open(zip_file, 'rb') as f:
+            st.download_button(
+                label="Download Media Consent ZIP",
+                data=f,
+                file_name=f"{safe_name} Media Consent.zip",
+                mime="application/zip"
+            )
+
+        os.remove(zip_file)
     else:
-        st.warning("Please enter the name to generate the consent form.")
+        st.warning("Please enter your name.")
