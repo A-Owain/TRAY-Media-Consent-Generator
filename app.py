@@ -98,11 +98,6 @@ if st.button("Generate & Download Consent ZIP"):
             "",
             "بالتوقيع أدناه، أوافق على استخدام TRAY لمحتواي:",
             "TABLE_BLOCK",
-            ,""
-            ,""
-            ,""
-            ,""
-            ,""
             "للاستفسارات، يرجى التواصل مع قسم التسويق: marketing@tray.sa"
         ]
 
