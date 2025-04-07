@@ -6,7 +6,7 @@ from bidi.algorithm import get_display
 from zipfile import ZipFile
 import os
 
-# Helper: Arabic shaping
+# Arabic reshaping
 def reshape_arabic(text):
     reshaped = arabic_reshaper.reshape(text)
     return get_display(reshaped)
@@ -18,7 +18,7 @@ def create_pdf(filename, lines, is_arabic, bg_image, selected_date, font_file):
     pdf.image(bg_image, x=0, y=0, w=210, h=297)
 
     pdf.add_font("NotoArabic", '', fname=font_file, uni=True)
-    pdf.set_font("NotoArabic", size=11)
+    pdf.set_font("NotoArabic", size=14)
 
     top_margin_mm = 53.27
     text_width_mm = 191.21
@@ -29,13 +29,13 @@ def create_pdf(filename, lines, is_arabic, bg_image, selected_date, font_file):
 
     # Title
     if is_arabic:
-        pdf.set_font_size(14)
+        pdf.set_font_size(16)
         pdf.multi_cell(text_width_mm, 10, reshape_arabic(lines[0]), align='R')
     else:
-        pdf.set_font_size(14)
+        pdf.set_font_size(16)
         pdf.multi_cell(text_width_mm, 10, lines[0], align='L')
 
-    pdf.set_font_size(11)
+    pdf.set_font_size(14)
     pdf.ln(2)
 
     for line in lines[1:]:
@@ -43,7 +43,7 @@ def create_pdf(filename, lines, is_arabic, bg_image, selected_date, font_file):
             pdf.ln(6)
             if is_arabic:
                 pdf.multi_cell(text_width_mm, 10, reshape_arabic("الاسم: _____________________________"), align='R')
-                pdf.multi_cell(text_width_mm, 10, reshape_arabic("التوقيع: _____________________________"), align='R')
+                pdf.multi_cell(text_width_mm, 10, reshape_aric("التوقيع: _____________________________"), align='R')
                 pdf.multi_cell(text_width_mm, 10, reshape_arabic(f"التاريخ: {selected_date.strftime('%Y-%m-%d')}"), align='R')
             else:
                 pdf.multi_cell(text_width_mm, 10, "Name: _____________________________", align='L')
@@ -56,24 +56,25 @@ def create_pdf(filename, lines, is_arabic, bg_image, selected_date, font_file):
 
     pdf.output(filename)
 
-# Streamlit App
+# Streamlit app
 st.set_page_config(page_title="TRAY Consent Form Generator")
-st.title("TRAY Media Consent Form Generator")
+st.title("📝 TRAY Media Consent Form Generator")
 
 name = st.text_input("Full Name / الاسم الكامل")
+national_id = st.text_input("National ID Number / رقم الهوية")
 selected_date = st.date_input("Select the date / اختر التاريخ", value=date.today())
 
 if st.button("Generate & Download Consent ZIP"):
-    if name:
+    if name and national_id:
         safe_name = name.replace('/', '-').replace('\\', '-')
         folder = f"{safe_name} Media Consent"
         os.makedirs(folder, exist_ok=True)
 
-        # Content
+        # English content with name
         english_lines = [
             "TRAY Media & Marketing Consent Form",
             "",
-            "In signing this form, I grant Company AL-HALLOUL RAQMIYAH AL-RAEDEH For Information Technology (TRAY)",
+            f"I, {name}, hereby grant Company AL-HALLOUL RAQMIYAH AL-RAEDEH For Information Technology (TRAY)",
             "the unrestricted right and permission to record, photograph, and use my name, image, voice, or words",
             "in any media content created for marketing, social media, educational, promotional, or internal use.",
             "",
@@ -86,10 +87,11 @@ if st.button("Generate & Download Consent ZIP"):
             "For questions, contact TRAY Marketing: marketing@tray.sa"
         ]
 
+        # Arabic content with name and national ID
         arabic_lines = [
             "نموذج موافقة وسائل الإعلام والتسويق – TRAY",
             "",
-            "بتوقيعي على هذا النموذج، أُقرّ بمنح شركة الحلول الرقمية الرائدة لتقنية المعلومات (TRAY)",
+            f"أُقرّ أنا، {name}، صاحب الهوية رقم {national_id}، بمنح شركة الحلول الرقمية الرائدة لتقنية المعلومات (TRAY)",
             "الحق الكامل وغير المقيد في تصويري أو تسجيل صوتي أو استخدام اسمي أو صورتي أو صوتي أو كلماتي",
             "في أي محتوى إعلامي يتم إنتاجه لأغراض تسويقية أو تعليمية أو ترويجية أو داخلية.",
             "",
@@ -101,7 +103,7 @@ if st.button("Generate & Download Consent ZIP"):
             "للاستفسارات، يرجى التواصل مع قسم التسويق: marketing@tray.sa"
         ]
 
-        # Generate PDFs
+        # Background + font
         bg = "consent_background.png"
         font_path = "NotoSansArabic-SemiBold.ttf"
 
@@ -117,15 +119,15 @@ if st.button("Generate & Download Consent ZIP"):
             zipf.write(en_pdf)
             zipf.write(ar_pdf)
 
-        # Clean temp files
+        # Clean up
         os.remove(en_pdf)
         os.remove(ar_pdf)
         os.rmdir(folder)
 
-        # Offer download
+        # Download button
         with open(zip_file, 'rb') as f:
             st.download_button(
-                label="Download Media Consent ZIP",
+                label="📥 Download Media Consent ZIP",
                 data=f,
                 file_name=zip_file,
                 mime="application/zip"
@@ -133,4 +135,4 @@ if st.button("Generate & Download Consent ZIP"):
 
         os.remove(zip_file)
     else:
-        st.warning("Please enter a name.")
+        st.warning("Please enter both your name and national ID.")
