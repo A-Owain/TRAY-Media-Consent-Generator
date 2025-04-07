@@ -56,9 +56,9 @@ def create_pdf(filename, lines, is_arabic, bg_image, selected_date, font_file):
 
     pdf.output(filename)
 
-# Streamlit app
-st.set_page_config(page_title="TRAY Consent Form Generator")
-st.title("📝 TRAY Media Consent Form Generator")
+# Streamlit UI
+st.set_page_config(page_title="TRAY Media Consent Form Generator")
+st.title("TRAY Media Consent Form Generator")
 
 name = st.text_input("Full Name / الاسم الكامل")
 national_id = st.text_input("National ID Number / رقم الهوية")
@@ -70,11 +70,11 @@ if st.button("Generate & Download Consent ZIP"):
         folder = f"{safe_name} Media Consent"
         os.makedirs(folder, exist_ok=True)
 
-        # English content with name
+        # Content
         english_lines = [
             "TRAY Media & Marketing Consent Form",
             "",
-            f"I, {name}, hereby grant Company AL-HALLOUL RAQMIYAH AL-RAEDEH For Information Technology (TRAY)",
+            f"I, {name}, holder of National ID number {national_id}, hereby grant Company AL-HALLOUL RAQMIYAH AL-RAEDEH For Information Technology (TRAY)",
             "the unrestricted right and permission to record, photograph, and use my name, image, voice, or words",
             "in any media content created for marketing, social media, educational, promotional, or internal use.",
             "",
@@ -87,7 +87,6 @@ if st.button("Generate & Download Consent ZIP"):
             "For questions, contact TRAY Marketing: marketing@tray.sa"
         ]
 
-        # Arabic content with name and national ID
         arabic_lines = [
             "نموذج موافقة وسائل الإعلام والتسويق – TRAY",
             "",
@@ -113,21 +112,19 @@ if st.button("Generate & Download Consent ZIP"):
         create_pdf(en_pdf, english_lines, is_arabic=False, bg_image=bg, selected_date=selected_date, font_file=font_path)
         create_pdf(ar_pdf, arabic_lines, is_arabic=True, bg_image=bg, selected_date=selected_date, font_file=font_path)
 
-        # Zip everything
+        # Zip it
         zip_file = f"{safe_name} Media Consent.zip"
         with ZipFile(zip_file, 'w') as zipf:
             zipf.write(en_pdf)
             zipf.write(ar_pdf)
 
-        # Clean up
         os.remove(en_pdf)
         os.remove(ar_pdf)
         os.rmdir(folder)
 
-        # Download button
         with open(zip_file, 'rb') as f:
             st.download_button(
-                label="📥 Download Media Consent ZIP",
+                label="Download Media Consent ZIP",
                 data=f,
                 file_name=zip_file,
                 mime="application/zip"
