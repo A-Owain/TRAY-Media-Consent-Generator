@@ -5,7 +5,6 @@ import arabic_reshaper
 from bidi.algorithm import get_display
 from zipfile import ZipFile
 import os
-from googletrans import Translator
 
 # Arabic reshaping
 def reshape_arabic(text):
@@ -28,6 +27,7 @@ def create_pdf(filename, lines, is_arabic, bg_image, selected_date, font_file):
     pdf.set_y(top_margin_mm)
     pdf.set_x(left_right_margin_mm)
 
+    # Title
     if is_arabic:
         pdf.set_font_size(16)
         pdf.multi_cell(text_width_mm, 10, reshape_arabic(lines[0]), align='R')
@@ -66,19 +66,15 @@ selected_date = st.date_input("Select the date / اختر التاريخ", value
 
 if st.button("Generate & Download Consent ZIP"):
     if name and national_id:
-        translator = Translator()
-        arabic_name = translator.translate(name, dest='ar').text
-        english_name = translator.translate(name, dest='en').text
-
         safe_name = name.replace('/', '-').replace('\\', '-')
         folder = f"{safe_name} Media Consent"
         os.makedirs(folder, exist_ok=True)
 
-        # English content
+        # English content with name + ID
         english_lines = [
             "TRAY Media & Marketing Consent Form",
             "",
-            f"I, {english_name}, holder of National ID number {national_id}, hereby grant Company AL-HALLOUL RAQMIYAH AL-RAEDEH For Information Technology (TRAY)",
+            f"I, {name}, holder of National ID number {national_id}, hereby grant Company AL-HALLOUL RAQMIYAH AL-RAEDEH For Information Technology (TRAY)",
             "the unrestricted right and permission to record, photograph, and use my name, image, voice, or words",
             "in any media content created for marketing, social media, educational, promotional, or internal use.",
             "",
@@ -91,11 +87,11 @@ if st.button("Generate & Download Consent ZIP"):
             "For questions, contact TRAY Marketing: marketing@tray.sa"
         ]
 
-        # Arabic content
+        # Arabic paragraph combined in one full sentence
         arabic_lines = [
             "نموذج موافقة وسائل الإعلام والتسويق – TRAY",
             "",
-            f"أُقرّ أنا، {arabic_name}، صاحب الهوية رقم {national_id}، بمنح شركة الحلول الرقمية الرائدة لتقنية المعلومات (TRAY) وغير المقيد في تصويري أو تسجيل صوتي أو استخدام اسمي أو صورتي أو صوتي أو كلماتي الحق الكامل في أي محتوى إعلامي يتم إنتاجه لأغراض تسويقية أو تعليمية أو ترويجية أو داخلية.",
+            f"أُقرّ أنا، {name}، صاحب الهوية رقم {national_id}، بمنح شركة الحلول الرقمية الرائدة لتقنية المعلومات (TRAY) وغير المقيد في تصويري أو تسجيل صوتي أو استخدام اسمي أو صورتي أو صوتي أو كلماتي الحق الكامل في أي محتوى إعلامي يتم إنتاجه لأغراض تسويقية أو تعليمية أو ترويجية أو داخلية.",
             "",
             "أن هذه المواد قد تستخدم على المواقع الإلكترونية، منصات التواصل الاجتماعي، المطبوعات، أفهم وأدرك أنني لن أتلقى أي تعويض مادي أو حق في مراجعة أو الموافقة على المواد النهائية. والعروض التقديمية.",
             "",
@@ -104,7 +100,7 @@ if st.button("Generate & Download Consent ZIP"):
             "للاستفسارات، يرجى التواصل مع قسم التسويق: marketing@tray.sa"
         ]
 
-        # Paths
+        # Resources
         bg = "consent_background.png"
         font_path = "NotoSansArabic-SemiBold.ttf"
 
@@ -114,13 +110,13 @@ if st.button("Generate & Download Consent ZIP"):
         create_pdf(en_pdf, english_lines, is_arabic=False, bg_image=bg, selected_date=selected_date, font_file=font_path)
         create_pdf(ar_pdf, arabic_lines, is_arabic=True, bg_image=bg, selected_date=selected_date, font_file=font_path)
 
-        # Create ZIP
+        # ZIP files
         zip_file = f"{safe_name} Media Consent.zip"
         with ZipFile(zip_file, 'w') as zipf:
             zipf.write(en_pdf)
             zipf.write(ar_pdf)
 
-        # Download
+        # Provide download before cleanup
         with open(zip_file, 'rb') as f:
             st.download_button(
                 label="Download Media Consent ZIP",
@@ -129,7 +125,7 @@ if st.button("Generate & Download Consent ZIP"):
                 mime="application/zip"
             )
 
-        # Cleanup
+        # Clean everything AFTER download is served
         os.remove(en_pdf)
         os.remove(ar_pdf)
         os.rmdir(folder)
