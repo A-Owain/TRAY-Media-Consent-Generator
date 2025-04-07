@@ -1,26 +1,30 @@
 import streamlit as st
 from fpdf import FPDF
 from datetime import date
+import arabic_reshaper
+from bidi.algorithm import get_display
 
-# Page config
 st.set_page_config(page_title="TRAY Consent Form Generator")
 st.title("📝 TRAY Media Consent Form Generator")
 
 # Inputs
 name = st.text_input("Full Name / الاسم الكامل")
 selected_date = st.date_input("Select the date / اختر التاريخ", value=date.today())
-
-# Convert date to string
 today_date = selected_date.strftime('%Y-%m-%d')
 
-# PDF generation function
+# Arabic shaping
+def reshape_arabic(text):
+    reshaped = arabic_reshaper.reshape(text)
+    return get_display(reshaped)
+
+# Generate PDF
 def generate_bilingual_pdf(english_lines, arabic_lines, filename):
     pdf = FPDF()
     pdf.set_auto_page_break(auto=True, margin=15)
     pdf.add_font("NotoArabic", '', fname="NotoSansArabic-SemiBold.ttf", uni=True)
     pdf.set_font("NotoArabic", size=12)
 
-    # English page
+    # English Page
     pdf.add_page()
     for line in english_lines:
         if line == "TABLE_BLOCK":
@@ -37,29 +41,28 @@ def generate_bilingual_pdf(english_lines, arabic_lines, filename):
         else:
             pdf.multi_cell(0, 10, line)
 
-    # Arabic page
+    # Arabic Page
     pdf.add_page()
     for line in arabic_lines:
         if line == "TABLE_BLOCK":
             pdf.ln(8)
-            pdf.cell(40, 10, "الاسم:", ln=0)
+            pdf.cell(40, 10, reshape_arabic("الاسم:"), ln=0)
             pdf.cell(80, 10, "_____________________________", ln=0)
             pdf.ln(10)
-            pdf.cell(40, 10, "التوقيع:", ln=0)
+            pdf.cell(40, 10, reshape_arabic("التوقيع:"), ln=0)
             pdf.cell(80, 10, "_____________________________", ln=0)
             pdf.ln(10)
-            pdf.cell(40, 10, "التاريخ:", ln=0)
+            pdf.cell(40, 10, reshape_arabic("التاريخ:"), ln=0)
             pdf.cell(80, 10, today_date, ln=1)
             pdf.ln(5)
         else:
-            pdf.multi_cell(0, 10, line)
+            pdf.multi_cell(0, 10, reshape_arabic(line))
 
     return pdf.output(dest='S').encode('latin-1'), filename
 
-# Button and logic
+# On generate
 if st.button("Generate Bilingual Consent PDF"):
     if name:
-        # English content
         english_lines = [
             "TRAY Media & Marketing Consent Form",
             "",
@@ -76,7 +79,6 @@ if st.button("Generate Bilingual Consent PDF"):
             "For questions, contact TRAY Marketing: marketing@tray.sa"
         ]
 
-        # Arabic content
         arabic_lines = [
             "نموذج موافقة وسائل الإعلام والتسويق – TRAY",
             "",
@@ -92,7 +94,6 @@ if st.button("Generate Bilingual Consent PDF"):
             "للاستفسارات، يرجى التواصل مع قسم التسويق: marketing@tray.sa"
         ]
 
-        # Generate bilingual PDF
         file_name = f"TRAY_Consent_{name.replace(' ', '_')}.pdf"
         pdf_data, final_filename = generate_bilingual_pdf(english_lines, arabic_lines, file_name)
 
