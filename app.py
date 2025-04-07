@@ -2,7 +2,7 @@ import streamlit as st
 from fpdf import FPDF
 from datetime import datetime
 
-# Current date
+# Get today's date
 today_date = datetime.today().strftime('%Y-%m-%d')
 
 st.set_page_config(page_title="TRAY Consent Form Generator")
@@ -16,15 +16,19 @@ def generate_pdf(content, filename):
     pdf = FPDF()
     pdf.add_page()
     pdf.set_auto_page_break(auto=True, margin=15)
-    pdf.add_font("ArialUnicode", '', fname="ArialUnicodeMS.ttf", uni=True)
-    pdf.set_font("ArialUnicode", size=12)
+
+    # Use NotoSansArabic-SemiBold font
+    pdf.add_font("NotoArabic", '', fname="NotoSansArabic-SemiBold.ttf", uni=True)
+    pdf.set_font("NotoArabic", size=12)
+
     for line in content.split('\n'):
         pdf.multi_cell(0, 10, line)
+
     return pdf.output(dest='S').encode('latin-1'), filename
 
 if st.button("Generate Consent PDFs"):
     if name and department:
-        # English PDF content
+        # English consent form content
         english_content = f"""TRAY Media & Marketing Consent Form
 
 In signing this form, I grant Company AL-HALLOUL RAQMIYAH AL-RAEDEH For Information Technology (TRAY) the unrestricted right and permission to record, photograph, and use my name, image, voice, or words in any media content created for marketing, social media, educational, promotional, or internal use.
@@ -39,7 +43,7 @@ Date: {today_date}
 For questions, contact TRAY Marketing: marketing@tray.sa
 """
 
-        # Arabic PDF content
+        # Arabic consent form content
         arabic_content = f"""نموذج موافقة وسائل الإعلام والتسويق – TRAY
 
 بتوقيعي على هذا النموذج، أُقرّ بمنح شركة الحلول الرقمية الرائدة لتقنية المعلومات (TRAY) الحق الكامل وغير المقيد في تصويري أو تسجيل صوتي أو استخدام اسمي أو صورتي أو صوتي أو كلماتي في أي محتوى إعلامي يتم إنتاجه لأغراض تسويقية أو تعليمية أو ترويجية أو داخلية.
