@@ -30,10 +30,10 @@ def create_pdf(filename, lines, is_arabic, bg_image, selected_date, font_file):
     # Title
     if is_arabic:
         pdf.set_font_size(16)
-        pdf.multi_cell(text_width_mm, 10, reshape_arabic(lines[0]), align='R')
+        pdf.multi_cell(text_width_mm, 10, reshape_arabic(lines[0]), align='C')
     else:
         pdf.set_font_size(16)
-        pdf.multi_cell(text_width_mm, 10, lines[0], align='L')
+        pdf.multi_cell(text_width_mm, 10, lines[0], align='C')
 
     pdf.set_font_size(14)
     pdf.ln(2)
