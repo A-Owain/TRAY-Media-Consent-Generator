@@ -80,6 +80,8 @@ if st.button("Generate & Download Consent ZIP"):
             "",
             "By signing below, I consent to TRAY’s use of my content:",
             "TABLE_BLOCK",
+            "",
+            "",
             "For questions, contact TRAY Marketing: marketing@tray.sa"
         ]
 
