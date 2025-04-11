@@ -50,7 +50,7 @@ def create_pdf(filename, lines, is_arabic, bg_image, selected_date, font_file):
                 pdf.multi_cell(text_width_mm, 10, "Signature: _____________________________", align='L')
                 pdf.multi_cell(text_width_mm, 10, f"Date: {selected_date.strftime('%Y-%m-%d')}", align='L')
         else:
-            txt = reshape_arabic(line) if is_arabic else line
+            txt = line
             align = 'R' if is_arabic else 'L'
             pdf.multi_cell(text_width_mm, 10, txt, align=align)
 
@@ -89,7 +89,7 @@ if st.button("Generate & Download Consent ZIP"):
         arabic_lines = [
             "نموذج موافقة وسائل الإعلام والتسويق – TRAY",
             "",
-            f"أُقرّ أنا، {name}، صاحب الهوية رقم {national_id}، بمنح شركة الحلول الرقمية الرائدة لتقنية المعلومات (TRAY) وغير المقيد في تصويري أو تسجيل صوتي أو استخدام اسمي أو صورتي أو صوتي أو كلماتي الحق الكامل في أي محتوى إعلامي يتم إنتاجه لأغراض تسويقية أو تعليمية أو ترويجية أو داخلية.",
+            "ﺃﻗﺮ ﺃﻧﺎ، " + arabic_name + f"، ﺻﺎﺣﺐ ﺍﻟﻬﻮﻳﺔ ﺭﻗﻢ {national_id}، ﺑﻤﻨﺢ ﺷﺮﻛﺔ ﺍﻟﺤﻠﻮﻝ ﺍﻟﺮﻗﻤﻴﺔ ﺍﻟﺮﺍﺋﺪﺓ ﻟﺘﻘﻨﻴﺔ ﺍﻟﻤﻌﻠﻮﻣﺎﺕ (TRAY) ﻭﻏﻴﺮ ﺍﻟﻤﻘﻴﺪ ﻓﻲ ﺗﺼﻮﻳﺮﻱ ﺃﻭ ﺗﺴﺠﻴﻞ ﺻﻮﺗﻲ ﺃﻭ ﺍﺳﺘﺨﺪﺍﻡ ﺍﺳﻤﻲ ﺃﻭ ﺻﻮﺭﺗﻲ ﺃﻭ ﺻﻮﺗﻲ ﺃﻭ ﻛﻠﻤﺎﺗﻲ ﺍﻟﺤﻖ ﺍﻟﻜﺎﻣﻞ ﻓﻲ ﺃﻱ ﻣﺤﺘﻮﻯ ﺇﻋﻼﻣﻲ ﻳﺘﻢ ﺇﻧﺘﺎﺟﻪ ﻷﻏﺮﺍﺽ ﺗﺴﻮﻳﻘﻴﺔ ﺃﻭ ﺗﻌﻠﻴﻤﻴﺔ ﺃﻭ ﺗﺮﻭﻳﺠﻴﺔ ﺃﻭ ﺩﺍﺧﻠﻴﺔ."
             "",
             "أن هذه المواد قد تستخدم على المواقع الإلكترونية، منصات التواصل الاجتماعي، المطبوعات، أفهم وأدرك أنني لن أتلقى أي تعويض مادي أو حق في مراجعة أو الموافقة على المواد النهائية. والعروض التقديمية.",
             "",
