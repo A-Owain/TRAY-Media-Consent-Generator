@@ -47,11 +47,7 @@ def create_pdf(filename, lines, is_arabic, bg_image, selected_date, font_file):
                 pdf.multi_cell(text_width_mm, 10, "Signature: _____________________________", align='L')
                 pdf.multi_cell(text_width_mm, 10, f"Date: {selected_date.strftime('%Y-%m-%d')}", align='L')
         else:
-            # Skip reshaping if it's the pre-shaped Arabic paragraph
-            if is_arabic and "ﺃﻗﺮ" not in line:
-                txt = reshape_arabic(line)
-            else:
-                txt = line
+            txt = reshape_arabic(line) if is_arabic else line
             align = 'R' if is_arabic else 'L'
             pdf.multi_cell(text_width_mm, 10, txt, align=align)
 
@@ -71,7 +67,7 @@ if st.button("Generate & Download Consent ZIP"):
         folder = f"{safe_name} Media Consent"
         os.makedirs(folder, exist_ok=True)
 
-        # English content with name + ID
+        # English content
         english_lines = [
             "TRAY Media & Marketing Consent Form",
             "",
@@ -86,11 +82,11 @@ if st.button("Generate & Download Consent ZIP"):
             "For questions, contact TRAY Marketing: marketing@tray.sa"
         ]
 
-        # Arabic content with pre-shaped paragraph
+        # Arabic content (reshapable lines only)
         arabic_lines = [
             "نموذج موافقة وسائل الإعلام والتسويق – TRAY",
             "",
-            f"ﺃﻗﺮ ﺃﻧﺎ، {name}، ﺻﺎﺣﺐ ﺍﻟﻬﻮﻳﺔ ﺭﻗﻢ {national_id}، ﺑﻤﻨﺢ ﺷﺮﻛﺔ ﺍﻟﺤﻠﻮﻝ ﺍﻟﺮﻗﻤﻴﺔ ﺍﻟﺮﺍﺋﺪﺓ ﻟﺘﻘﻨﻴﺔ ﺍﻟﻤﻌﻠﻮﻣﺎﺕ (TRAY) ﻭﻏﻴﺮ ﺍﻟﻤﻘﻴﺪ ﻓﻲ ﺗﺼﻮﻳﺮﻱ ﺃﻭ ﺗﺴﺠﻴﻞ ﺻﻮﺗﻲ ﺃﻭ ﺍﺳﺘﺨﺪﺍﻡ ﺍﺳﻤﻲ ﺃﻭ ﺻﻮﺭﺗﻲ ﺃﻭ ﺻﻮﺗﻲ ﺃﻭ ﻛﻠﻤﺎﺗﻲ ﺍﻟﺤﻖ ﺍﻟﻜﺎﻣﻞ ﻓﻲ ﺃﻱ ﻣﺤﺘﻮﻯ ﺇﻋﻼﻣﻲ ﻳﺘﻢ ﺇﻧﺘﺎﺟﻪ ﻷﻏﺮﺍﺽ ﺗﺴﻮﻳﻘﻴﺔ ﺃﻭ ﺗﻌﻠﻴﻤﻴﺔ ﺃﻭ ﺗﺮﻭﻳﺠﻴﺔ ﺃﻭ ﺩﺍﺧﻠﻴﺔ.",
+            f"أُقرّ أنا، {name}، صاحب الهوية رقم {national_id}، بمنح شركة الحلول الرقمية الرائدة لتقنية المعلومات (TRAY) وغير المقيد في تصويري أو تسجيل صوتي أو استخدام اسمي أو صورتي أو صوتي أو كلماتي الحق الكامل في أي محتوى إعلامي يتم إنتاجه لأغراض تسويقية أو تعليمية أو ترويجية أو داخلية.",
             "",
             "أن هذه المواد قد تستخدم على المواقع الإلكترونية، منصات التواصل الاجتماعي، المطبوعات، أفهم وأدرك أنني لن أتلقى أي تعويض مادي أو حق في مراجعة أو الموافقة على المواد النهائية. والعروض التقديمية.",
             "",
