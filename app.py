@@ -28,12 +28,9 @@ def create_pdf(filename, lines, is_arabic, bg_image, selected_date, font_file):
     pdf.set_x(left_right_margin_mm)
 
     # Title
-    if is_arabic:
-        pdf.set_font_size(16)
-        pdf.multi_cell(text_width_mm, 10, reshape_arabic(lines[0]), align='C')
-    else:
-        pdf.set_font_size(16)
-        pdf.multi_cell(text_width_mm, 10, lines[0], align='C')
+    pdf.set_font_size(16)
+    title = reshape_arabic(lines[0]) if is_arabic else lines[0]
+    pdf.multi_cell(text_width_mm, 10, title, align='C')
 
     pdf.set_font_size(14)
     pdf.ln(2)
@@ -49,16 +46,14 @@ def create_pdf(filename, lines, is_arabic, bg_image, selected_date, font_file):
                 pdf.multi_cell(text_width_mm, 10, "Name: _____________________________", align='L')
                 pdf.multi_cell(text_width_mm, 10, "Signature: _____________________________", align='L')
                 pdf.multi_cell(text_width_mm, 10, f"Date: {selected_date.strftime('%Y-%m-%d')}", align='L')
-for line in lines[1:]:
-    if line == "TABLE_BLOCK":
-        ...
-    else:
-        if is_arabic and "ﺃﻗﺮ" not in line:  # skip reshaping for pre-shaped paragraph
-            txt = reshape_arabic(line)
         else:
-            txt = line
-        align = 'R' if is_arabic else 'L'
-        pdf.multi_cell(text_width_mm, 10, txt, align=align)
+            # Skip reshaping if it's the pre-shaped Arabic paragraph
+            if is_arabic and "ﺃﻗﺮ" not in line:
+                txt = reshape_arabic(line)
+            else:
+                txt = line
+            align = 'R' if is_arabic else 'L'
+            pdf.multi_cell(text_width_mm, 10, txt, align=align)
 
     pdf.output(filename)
 
@@ -91,11 +86,11 @@ if st.button("Generate & Download Consent ZIP"):
             "For questions, contact TRAY Marketing: marketing@tray.sa"
         ]
 
-        # Arabic paragraph combined in one full sentence
+        # Arabic content with pre-shaped paragraph
         arabic_lines = [
             "نموذج موافقة وسائل الإعلام والتسويق – TRAY",
             "",
-            f"ﺃﻗﺮ ﺃﻧﺎ، {name}، ﺻﺎﺣﺐ ﺍﻟﻬﻮﻳﺔ ﺭﻗﻢ {national_id}، ﺑﻤﻨﺢ ﺷﺮﻛﺔ ﺍﻟﺤﻠﻮﻝ ﺍﻟﺮﻗﻤﻴﺔ ﺍﻟﺮﺍﺋﺪﺓ ﻟﺘﻘﻨﻴﺔ ﺍﻟﻤﻌﻠﻮﻣﺎﺕ (TRAY) ﻭﻏﻴﺮ ﺍﻟﻤﻘﻴﺪ ﻓﻲ ﺗﺼﻮﻳﺮﻱ ﺃﻭ ﺗﺴﺠﻴﻞ ﺻﻮﺗﻲ ﺃﻭ ﺍﺳﺘﺨﺪﺍﻡ ﺍﺳﻤﻲ ﺃﻭ ﺻﻮﺭﺗﻲ ﺃﻭ ﺻﻮﺗﻲ ﺃﻭ ﻛﻠﻤﺎﺗﻲ ﺍﻟﺤﻖ ﺍﻟﻜﺎﻣﻞ ﻓﻲ ﺃﻱ ﻣﺤﺘﻮﻯ ﺇﻋﻼﻣﻲ ﻳﺘﻢ ﺇﻧﺘﺎﺟﻪ ﻷﻏﺮﺍﺽ ﺗﺴﻮﻳﻘﻴﺔ ﺃﻭ ﺗﻌﻠﻴﻤﻴﺔ ﺃﻭ ﺗﺮﻭﻳﺠﻴﺔ ﺃﻭ ﺩﺍﺧﻠﻴﺔ."
+            f"ﺃﻗﺮ ﺃﻧﺎ، {name}، ﺻﺎﺣﺐ ﺍﻟﻬﻮﻳﺔ ﺭﻗﻢ {national_id}، ﺑﻤﻨﺢ ﺷﺮﻛﺔ ﺍﻟﺤﻠﻮﻝ ﺍﻟﺮﻗﻤﻴﺔ ﺍﻟﺮﺍﺋﺪﺓ ﻟﺘﻘﻨﻴﺔ ﺍﻟﻤﻌﻠﻮﻣﺎﺕ (TRAY) ﻭﻏﻴﺮ ﺍﻟﻤﻘﻴﺪ ﻓﻲ ﺗﺼﻮﻳﺮﻱ ﺃﻭ ﺗﺴﺠﻴﻞ ﺻﻮﺗﻲ ﺃﻭ ﺍﺳﺘﺨﺪﺍﻡ ﺍﺳﻤﻲ ﺃﻭ ﺻﻮﺭﺗﻲ ﺃﻭ ﺻﻮﺗﻲ ﺃﻭ ﻛﻠﻤﺎﺗﻲ ﺍﻟﺤﻖ ﺍﻟﻜﺎﻣﻞ ﻓﻲ ﺃﻱ ﻣﺤﺘﻮﻯ ﺇﻋﻼﻣﻲ ﻳﺘﻢ ﺇﻧﺘﺎﺟﻪ ﻷﻏﺮﺍﺽ ﺗﺴﻮﻳﻘﻴﺔ ﺃﻭ ﺗﻌﻠﻴﻤﻴﺔ ﺃﻭ ﺗﺮﻭﻳﺠﻴﺔ ﺃﻭ ﺩﺍﺧﻠﻴﺔ.",
             "",
             "أن هذه المواد قد تستخدم على المواقع الإلكترونية، منصات التواصل الاجتماعي، المطبوعات، أفهم وأدرك أنني لن أتلقى أي تعويض مادي أو حق في مراجعة أو الموافقة على المواد النهائية. والعروض التقديمية.",
             "",
