@@ -49,13 +49,16 @@ def create_pdf(filename, lines, is_arabic, bg_image, selected_date, font_file):
                 pdf.multi_cell(text_width_mm, 10, "Name: _____________________________", align='L')
                 pdf.multi_cell(text_width_mm, 10, "Signature: _____________________________", align='L')
                 pdf.multi_cell(text_width_mm, 10, f"Date: {selected_date.strftime('%Y-%m-%d')}", align='L')
-            else:
-            if is_arabic and "ﺃﻗﺮ" not in line:  # Skip reshaping if line is already shaped
+for line in lines[1:]:
+    if line == "TABLE_BLOCK":
+        ...
+    else:
+        if is_arabic and "ﺃﻗﺮ" not in line:  # skip reshaping for pre-shaped paragraph
             txt = reshape_arabic(line)
-            else:
+        else:
             txt = line
-            align = 'R' if is_arabic else 'L'
-            pdf.multi_cell(text_width_mm, 10, txt, align=align)
+        align = 'R' if is_arabic else 'L'
+        pdf.multi_cell(text_width_mm, 10, txt, align=align)
 
     pdf.output(filename)
 
