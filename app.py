@@ -28,9 +28,12 @@ def create_pdf(filename, lines, is_arabic, bg_image, selected_date, font_file):
     pdf.set_x(left_right_margin_mm)
 
     # Title
-    pdf.set_font_size(16)
-    title = reshape_arabic(lines[0]) if is_arabic else lines[0]
-    pdf.multi_cell(text_width_mm, 10, title, align='C')
+    if is_arabic:
+        pdf.set_font_size(16)
+        pdf.multi_cell(text_width_mm, 10, reshape_arabic(lines[0]), align='R')
+    else:
+        pdf.set_font_size(16)
+        pdf.multi_cell(text_width_mm, 10, lines[0], align='L')
 
     pdf.set_font_size(14)
     pdf.ln(2)
@@ -67,7 +70,7 @@ if st.button("Generate & Download Consent ZIP"):
         folder = f"{safe_name} Media Consent"
         os.makedirs(folder, exist_ok=True)
 
-        # English content
+        # English content with name + ID
         english_lines = [
             "TRAY Media & Marketing Consent Form",
             "",
@@ -82,7 +85,7 @@ if st.button("Generate & Download Consent ZIP"):
             "For questions, contact TRAY Marketing: marketing@tray.sa"
         ]
 
-        # Arabic content (reshapable lines only)
+        # Arabic paragraph combined in one full sentence
         arabic_lines = [
             "نموذج موافقة وسائل الإعلام والتسويق – TRAY",
             "",
